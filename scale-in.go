@@ -10,13 +10,13 @@ import (
 )
 
 func bench(requests int, n uint64, image string, args []string) {
-    serviceID := CreateService(image, args, 1)
+    serviceID := CreateService(image, args, 1+uint64(requests)*n)
     start := time.Now()
     timings := make([]float64, requests)
 
     for i := 0; i < requests; i++ {
         ts := time.Now()
-        Scale(serviceID, 1+uint64(i+1)*n)
+        Scale(serviceID, 1+uint64(requests-i-1)*n)
         timings[i] = time.Since(ts).Seconds()
         fmt.Printf("[%3.f%%] %d/%d request done\n", float64(i+1)/float64(requests)*100, i+1, requests)
     }
@@ -33,7 +33,7 @@ func bench(requests int, n uint64, image string, args []string) {
 
 func main() {
     app := cli.NewApp()
-    app.Name = "scale-out"
+    app.Name = "scale-in"
     app.Usage = "DaoCloud swarm-kit benchmarking tool"
     app.Version = "0.1"
     app.Author = "haipeng"
@@ -42,12 +42,12 @@ func main() {
         cli.IntFlag{
             Name:  "requests, r",
             Value: 1,
-            Usage: "Number of requests to scale out n instances.",
+            Usage: "Number of requests to scale in n instances.",
         },
         cli.IntFlag{
             Name:  "instances, n",
             Value: 1,
-            Usage: "Number of service instances to scale out in each request.",
+            Usage: "Number of service instances to scale in for each request.",
         },
         cli.StringSliceFlag{
             Name:  "image, i",
