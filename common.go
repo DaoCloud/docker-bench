@@ -7,6 +7,8 @@ import (
     "golang.org/x/net/context"
     "github.com/docker/docker/api/types"
     "github.com/docker/docker/api/types/swarm"
+    "github.com/docker/docker/api/types/container"
+    "github.com/docker/docker/api/types/strslice"
     "github.com/docker/docker/client"
 )
 
@@ -17,6 +19,25 @@ func NewClient() *client.Client {
     }
 
     return c
+}
+
+func RunContainer(image string, args []string) string {
+    c := NewClient()
+    containerConfig := new(container.Config)
+    containerConfig.Image = image
+    containerConfig.Cmd = strslice.StrSlice(args)
+
+    res, err := c.ContainerCreate(context.Background(), containerConfig, nil, nil, "")
+    if err != nil {
+        panic(err)
+    }
+
+    c = NewClient()
+    if err := c.ContainerStart(context.Background(), res.ID, types.ContainerStartOptions{}); err != nil {
+        panic(err)
+    }
+
+    return res.ID
 }
 
 func CreateService(image string, args []string, n uint64) string {
