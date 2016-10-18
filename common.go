@@ -53,7 +53,7 @@ func CreateService(image string, args []string, n uint64) string {
         panic(err)
     }
 
-    WaitServiceInstanceN(res.ID, n, 500, 20*int(n))
+    WaitServiceInstanceN(res.ID, n, 500, 100*int(n))
     return res.ID
 }
 
@@ -122,5 +122,5 @@ func Scale(serviceID string, n uint64) {
         panic(err)
     }
 
-    WaitServiceInstanceN(serviceID, n, 500, 20*int(diff))
+    WaitServiceInstanceN(serviceID, n, 500, 100*int(diff))
 }
